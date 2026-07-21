@@ -2,11 +2,18 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import menu from "@/data/menu.js";
 import MenuCard from "@/components/MenuCard.jsx";
+import Header from "@/components/Header.jsx";
 import heroImage from "@/assets/hero-bread.jpg";
-import { Badge } from "@/components/ui/badge";
+import betongLogo from "@/assets/betong-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext.jsx";
 
@@ -22,22 +29,14 @@ function OrderPage() {
     setCart((prev) => {
       const existing = prev.find((line) => line.id === id);
       if (existing) {
-        return prev.map((line) =>
-          line.id === id ? { ...line, quantity: line.quantity + 1 } : line,
-        );
+        return prev.map((line) => (line.id === id ? { ...line, quantity: line.quantity + 1 } : line));
       }
       return [...prev, { id, quantity: 1 }];
     });
   }
 
   function handleQuantityChange(id, delta) {
-    setCart((prev) =>
-      prev
-        .map((line) =>
-          line.id === id ? { ...line, quantity: line.quantity + delta } : line,
-        )
-        .filter((line) => line.quantity > 0),
-    );
+    setCart((prev) => prev.map((line) => (line.id === id ? { ...line, quantity: line.quantity + delta } : line)).filter((line) => line.quantity > 0));
   }
 
   const totalCount = cart.reduce((sum, line) => sum + line.quantity, 0);
@@ -45,10 +44,6 @@ function OrderPage() {
     const item = menu.find((m) => m.id === line.id);
     return sum + (item ? item.price * line.quantity : 0);
   }, 0);
-
-  async function handleLogout() {
-    await supabase.auth.signOut();
-  }
 
   async function handleOrder() {
     if (!pickupTime.trim()) {
@@ -83,6 +78,18 @@ function OrderPage() {
     setPickupTime("");
   }
 
+  function renderOrderButton() {
+    return user ? (
+      <Button className="h-auto w-full py-4 text-base font-medium" disabled={cart.length === 0} onClick={handleOrder}>
+        주문하기
+      </Button>
+    ) : (
+      <Button className="h-auto w-full py-4 text-base font-medium" onClick={() => navigate("/auth")}>
+        로그인하고 주문하기
+      </Button>
+    );
+  }
+
   function renderCartBody(idSuffix) {
     return (
       <>
@@ -91,28 +98,18 @@ function OrderPage() {
         {cart.length === 0 ? (
           <p className="text-sm text-muted-foreground">담은 품목이 없어요</p>
         ) : (
-          <ul className="flex flex-col gap-3">
+          <ul className="flex max-h-40 min-h-0 shrink-0 flex-col gap-3 overflow-y-auto pr-1 md:max-h-none md:overflow-visible">
             {cart.map((line) => {
               const item = menu.find((m) => m.id === line.id);
               return (
                 <li key={line.id} className="flex items-center justify-between gap-2">
                   <span className="text-sm">{item.name}</span>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon-sm"
-                      className="rounded-full"
-                      onClick={() => handleQuantityChange(line.id, -1)}
-                    >
+                    <Button variant="outline" size="icon-sm" className="rounded-full" onClick={() => handleQuantityChange(line.id, -1)}>
                       -
                     </Button>
                     <span className="w-4 text-center text-sm">{line.quantity}</span>
-                    <Button
-                      variant="outline"
-                      size="icon-sm"
-                      className="rounded-full"
-                      onClick={() => handleQuantityChange(line.id, 1)}
-                    >
+                    <Button variant="outline" size="icon-sm" className="rounded-full" onClick={() => handleQuantityChange(line.id, 1)}>
                       +
                     </Button>
                   </div>
@@ -124,15 +121,14 @@ function OrderPage() {
 
         <div className="flex items-center justify-between border-t pt-3 text-sm">
           <span className="text-muted-foreground">합계</span>
-          <span className="text-base font-medium text-primary">
-            {totalPrice.toLocaleString()}원
-          </span>
+          <span className="text-[1.2rem] font-medium text-primary">{totalPrice.toLocaleString()}원</span>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`pickupTime-${idSuffix}`}>픽업 희망 시간</Label>
           <Input
             id={`pickupTime-${idSuffix}`}
+            className="h-12"
             value={pickupTime}
             onChange={(e) => setPickupTime(e.target.value)}
             placeholder="예: 오늘 18:00"
@@ -140,64 +136,29 @@ function OrderPage() {
         </div>
 
         {orderError && <p className="text-sm text-destructive">{orderError}</p>}
-        {orderSuccess && <p className="text-sm text-[#006400]">주문이 접수되었습니다</p>}
 
-        {user ? (
-          <Button
-            className="h-auto w-full py-4 text-base font-medium"
-            disabled={cart.length === 0}
-            onClick={handleOrder}
-          >
-            주문하기
-          </Button>
-        ) : (
-          <Button
-            className="h-auto w-full py-4 text-base font-medium"
-            onClick={() => navigate("/auth")}
-          >
-            로그인하고 주문하기
-          </Button>
-        )}
+        {renderOrderButton()}
       </>
     );
   }
 
   return (
     <div>
-      <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between gap-2 border-b border-border bg-background px-6 sm:gap-4">
-        <div className="flex shrink-0 items-center gap-2">
-          <span className="whitespace-nowrap font-heading text-base font-medium sm:text-lg">소금빵 카페 베통</span>
-          <Badge>{totalCount}</Badge>
-        </div>
-
-        {user ? (
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <span className="hidden text-sm text-muted-foreground sm:inline">{user.email}</span>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/my">내 주문</Link>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              로그아웃
-            </Button>
-          </div>
-        ) : (
-          <Button size="sm" asChild>
-            <Link to="/auth">로그인</Link>
-          </Button>
-        )}
-      </header>
+      <Header totalCount={totalCount} />
 
       <div className="pt-16">
         <div className="relative h-40 w-full overflow-hidden sm:h-52 md:h-64">
-          <img
-            src={heroImage}
-            alt="소금빵 카페 베통 매장 진열대"
-            className="h-full w-full object-cover object-[center_20%]"
-          />
+          <img src={heroImage} alt="소금빵 카페 베통 매장 진열대" className="h-full w-full object-cover object-[center_20%]" />
           <div className="absolute inset-0 bg-black/30" />
           <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-white">
-            <h1 className="text-2xl font-medium drop-shadow-sm">소금빵 카페 베통</h1>
-            <p className="mt-1 text-sm text-white/90 drop-shadow-sm">오늘만 굽는 소금빵, 오늘만 만나요</p>
+            <h1>
+              <img
+                src={betongLogo}
+                alt="BETONG"
+                className="h-8 w-auto brightness-0 invert drop-shadow-sm sm:h-10"
+              />
+            </h1>
+            <p className="mt-1 text-sm text-white/90 drop-shadow-sm">SALT BREAD & COFFEE</p>
           </div>
         </div>
       </div>
@@ -217,8 +178,18 @@ function OrderPage() {
       </div>
 
       <section className="fixed inset-x-0 bottom-0 z-40 flex w-full max-h-[70vh] flex-col gap-4 overflow-y-auto rounded-t-lg border-t border-border bg-card p-5 md:hidden">
-        {renderCartBody("mobile")}
+        {cart.length === 0 ? renderOrderButton() : renderCartBody("mobile")}
       </section>
+
+      <Dialog open={orderSuccess} onOpenChange={setOrderSuccess}>
+        <DialogContent>
+          <DialogTitle>주문이 완료되었습니다</DialogTitle>
+          <DialogDescription>픽업 시간에 맞춰 준비해 드릴게요.</DialogDescription>
+          <Button className="mt-4 h-auto w-full py-3" asChild>
+            <Link to="/my">내 주문 목록으로 이동</Link>
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import loginBgImage from "@/assets/login-bg.webp";
+import betongLogo from "@/assets/betong-logo.png";
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -53,35 +55,56 @@ function AuthPage() {
   }
 
   return (
-    <div className="mx-auto max-w-sm py-12">
-      <Card className="rounded-md">
+    <div
+      className="relative flex min-h-screen items-center justify-center bg-cover bg-center px-4 py-12"
+      style={{ backgroundImage: `url(${loginBgImage})` }}
+    >
+      <div className="absolute inset-0 bg-black/70" />
+      <Card className="relative w-full max-w-sm rounded-md border-none bg-transparent shadow-none">
         <CardHeader>
-          <CardTitle>베통 오늘의 주문</CardTitle>
+          <img
+            src={betongLogo}
+            alt="BETONG"
+            className="mx-auto mb-3 h-16 w-auto brightness-0 invert"
+          />
+          <CardTitle className="text-center text-2xl text-white">오늘의 주문</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login">
-            <TabsList className="w-full">
-              <TabsTrigger value="login">로그인</TabsTrigger>
-              <TabsTrigger value="signup">회원가입</TabsTrigger>
+            <TabsList className="w-full !h-auto bg-white/10">
+              <TabsTrigger
+                value="login"
+                className="h-auto py-2.5 text-base text-white/70 hover:text-white data-active:bg-white/15 data-active:text-white"
+              >
+                로그인
+              </TabsTrigger>
+              <TabsTrigger
+                value="signup"
+                className="h-auto py-2.5 text-base text-white/70 hover:text-white data-active:bg-white/15 data-active:text-white"
+              >
+                회원가입
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="login">
+            <TabsContent value="login" className="mt-4">
               <form className="flex flex-col gap-4" onSubmit={handleLogin}>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="login-email">이메일</Label>
+                  <Label htmlFor="login-email" className="text-white/90">이메일</Label>
                   <Input
                     id="login-email"
                     type="email"
+                    className="h-12 border-white/20 bg-white/10 text-white placeholder:text-white/40"
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="login-password">비밀번호</Label>
+                  <Label htmlFor="login-password" className="text-white/90">비밀번호</Label>
                   <Input
                     id="login-password"
                     type="password"
+                    className="h-12 border-white/20 bg-white/10 text-white placeholder:text-white/40"
                     required
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
@@ -98,23 +121,25 @@ function AuthPage() {
               </form>
             </TabsContent>
 
-            <TabsContent value="signup">
+            <TabsContent value="signup" className="mt-4">
               <form className="flex flex-col gap-4" onSubmit={handleSignup}>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="signup-email">이메일</Label>
+                  <Label htmlFor="signup-email" className="text-white/90">이메일</Label>
                   <Input
                     id="signup-email"
                     type="email"
+                    className="h-12 border-white/20 bg-white/10 text-white placeholder:text-white/40"
                     required
                     value={signupEmail}
                     onChange={(e) => setSignupEmail(e.target.value)}
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="signup-password">비밀번호</Label>
+                  <Label htmlFor="signup-password" className="text-white/90">비밀번호</Label>
                   <Input
                     id="signup-password"
                     type="password"
+                    className="h-12 border-white/20 bg-white/10 text-white placeholder:text-white/40"
                     required
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}

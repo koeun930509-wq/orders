@@ -16,6 +16,7 @@ dist-ssr
 # Stray local photos not used by the app
 /20240815＿120053.jpg
 /베통.webp
+/images/
 
 # Editor directories and files
 .vscode/*
@@ -27,3 +28,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.vercel
+.env*
