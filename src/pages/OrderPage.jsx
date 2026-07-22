@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import menu from "@/data/menu.js";
+import menuImages from "@/data/menuImages.js";
 import MenuCard from "@/components/MenuCard.jsx";
 import Header from "@/components/Header.jsx";
 import heroImage from "@/assets/hero-bread.jpg";
@@ -20,11 +20,29 @@ import { useAuth } from "@/context/AuthContext.jsx";
 function OrderPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [menu, setMenu] = useState([]);
+  const [menuLoading, setMenuLoading] = useState(true);
   const [cart, setCart] = useState([]); // [{ id, quantity }]
   const [pickupTime, setPickupTime] = useState("");
   const [orderError, setOrderError] = useState("");
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [mobileCartExpanded, setMobileCartExpanded] = useState(false);
+
+  useEffect(() => {
+    async function fetchMenu() {
+      setMenuLoading(true);
+      const { data, error } = await supabase
+        .from("menu")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error) {
+        setMenu(data.map((item) => ({ ...item, image: item.image_url || menuImages[item.name] })));
+      }
+      setMenuLoading(false);
+    }
+
+    fetchMenu();
+  }, []);
 
   function handleAdd(id) {
     setCart((prev) => {
@@ -167,11 +185,15 @@ function OrderPage() {
 
       <div className="pb-32 md:flex md:items-start md:gap-4 md:px-6 md:pb-6">
         <section className="px-4 pt-4 md:flex-1 md:p-0 md:py-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-6 md:grid-cols-3 md:gap-6">
-            {menu.map((item) => (
-              <MenuCard key={item.id} item={item} onAdd={() => handleAdd(item.id)} />
-            ))}
-          </div>
+          {menuLoading ? (
+            <p className="text-sm text-muted-foreground">메뉴를 불러오는 중...</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-6 md:grid-cols-3 md:gap-6">
+              {menu.map((item) => (
+                <MenuCard key={item.id} item={item} onAdd={() => handleAdd(item.id)} />
+              ))}
+            </div>
+          )}
         </section>
 
         <aside className="hidden md:sticky md:top-20 md:mt-6 md:flex md:w-80 md:shrink-0 md:max-h-[calc(100vh-6rem)] md:flex-col md:gap-4 md:overflow-y-auto md:rounded-lg md:border md:border-border md:bg-card md:p-5">

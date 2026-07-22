@@ -25,7 +25,7 @@ There are no build/lint/test commands to run yet because no framework has been s
 - `/my` (`src/pages/MyOrdersPage.jsx`) — logged-in customer's own orders only.
 - `/admin` (`src/pages/AdminPage.jsx`) — owner-only: full order table, mark complete, delete. Non-owner visitors get an "권한이 없습니다" message and redirect — this is a UX nicety only, **not** the security boundary (see below).
 
-**Menu data is not in the database.** It lives in `src/data/menu.js` (array of id/name/price/description) and is hand-edited by the owner. There is intentionally no menu CRUD UI — don't build one.
+**Menu data lives in Supabase, in a `menu` table** (id, name, price, description, `is_sold_out` default false, created_at) — not in `src/data/menu.js`. The owner manages menu items (create/update/delete, including toggling sold-out) from a "메뉴 관리" tab inside `AdminPage.jsx`. Anyone, including anonymous visitors, can `SELECT` from `menu`.
 
 **Order data (`orders` table):** user_id, pickup time, order text (denormalized, e.g. `"크루아상 x2, 쑥라떼 x1"`), total amount, status (default `"접수"`, transitions to `"완료"`), created_at.
 
@@ -33,15 +33,18 @@ There are no build/lint/test commands to run yet because no framework has been s
 
 Two roles beyond anonymous visitors: **손님 (customer)** and **사장 (owner)**. Both sign up through the same flow; there is no "sign up as owner" button — an owner is designated out-of-band in Supabase after the fact.
 
-Role is stored in a `profiles` table (`user_id`, `role`, default `"customer"`); the owner's row is flipped to `role = "owner"` manually via Supabase, not through any app screen.
+Role is stored in a `profiles` table (`user_id`, `role`, default `"customer"`, `email`, `nickname`); the owner's row is flipped to `role = "owner"` manually via Supabase, not through any app screen. `email` and `nickname` are captured automatically at signup by a DB trigger (`handle_new_betong_customer`) — `nickname` comes from the signup form (`AuthPage.jsx` passes it via `supabase.auth.signUp({ options: { data: { nickname } } })`), falling back to the email's local part if absent. The UI shows nickname, never raw email, once a user is logged in (`Header.jsx`) or in the admin order list (`AdminPage.jsx`).
 
 **The enforcement boundary is RLS, never application code.** This is called out explicitly in the PRD because it's the easiest thing to get wrong:
 - RLS policies must check `profiles.role`, never a hardcoded email or a frontend `if` check in `AdminPage.jsx`. A frontend-only gate is UX, not security — anyone can hit the Supabase API directly and bypass it.
 - `orders` SELECT: customers see only rows where `user_id = auth.uid()`; owner sees all.
 - `orders` INSERT: must have `WITH CHECK (user_id = auth.uid())` — a customer must not be able to create an order under someone else's `user_id`.
 - `orders` UPDATE (status) / DELETE: owner only. Customers cannot edit or cancel their own orders (cancellation is a request to the owner, not a feature).
+- `menu` SELECT: public — anyone, including anonymous visitors, can read the menu.
+- `menu` INSERT / UPDATE / DELETE: owner only, gated by `profiles.role = "owner"` — same as `orders`, never a hardcoded owner email.
+- `profiles` SELECT: each user sees only their own row, **except** the owner, who can see all rows (needed to display customer emails in `AdminPage.jsx`). This owner-wide policy is gated through a `SECURITY DEFINER` helper (`is_betong_owner()`) rather than a self-referencing policy, to avoid RLS recursion on the `profiles` table itself.
 
-When touching auth, the `orders` table, or `AdminPage.jsx`, verify the actual RLS policies enforce the above — don't rely on the screen-level checks alone.
+When touching auth, the `orders` table, the `menu` table, or `AdminPage.jsx`, verify the actual RLS policies enforce the above — don't rely on the screen-level checks alone.
 
 ---
 
@@ -72,7 +75,7 @@ When touching auth, the `orders` table, or `AdminPage.jsx`, verify the actual RL
 - `/my` (`src/pages/MyOrdersPage.jsx`) — 로그인한 손님 본인의 주문만 표시.
 - `/admin` (`src/pages/AdminPage.jsx`) — 사장 전용: 전체 주문 표, 완료 처리, 삭제. 사장이 아닌 사용자가 접근하면 "권한이 없습니다" 안내 후 리다이렉트되지만, 이건 UX일 뿐이고 **보안 경계는 아닙니다** (아래 참고).
 
-**메뉴 데이터는 DB에 없습니다.** `src/data/menu.js`(id/이름/가격/설명 배열)에 있으며 사장이 직접 수정합니다. 메뉴 CRUD 화면은 의도적으로 없으니 만들지 마세요.
+**메뉴 데이터는 Supabase의 `menu` 테이블**(id, name, price, description, `is_sold_out` 기본값 false, created_at)에 있습니다 — `src/data/menu.js`가 아닙니다. 사장은 `AdminPage.jsx` 안의 "메뉴 관리" 탭에서 메뉴를 등록·수정·삭제(품절 토글 포함)합니다. `menu` 테이블 SELECT는 익명 방문자를 포함해 누구나 가능합니다.
 
 **주문 데이터 (`orders` 테이블):** user_id, 픽업 희망 시간, 주문 내역 텍스트(비정규화, 예: `"크루아상 x2, 쑥라떼 x1"`), 합계 금액, 상태(기본값 `"접수"`, `"완료"`로 전환), 생성 시각.
 
@@ -80,12 +83,15 @@ When touching auth, the `orders` table, or `AdminPage.jsx`, verify the actual RL
 
 익명 방문자 외에 두 역할: **손님**과 **사장**. 둘 다 같은 가입 흐름을 사용하며, "사장으로 가입" 버튼은 없습니다 — 사장 지정은 나중에 Supabase에서 화면 밖에서 처리됩니다.
 
-역할은 `profiles` 테이블(`user_id`, `role`, 기본값 `"customer"`)에 저장되며, 사장 계정의 행만 Supabase에서 수동으로 `role = "owner"`로 바꿉니다 — 앱 화면을 통해서가 아닙니다.
+역할은 `profiles` 테이블(`user_id`, `role`, 기본값 `"customer"`, `email`, `nickname`)에 저장되며, 사장 계정의 행만 Supabase에서 수동으로 `role = "owner"`로 바꿉니다 — 앱 화면을 통해서가 아닙니다. `email`과 `nickname`은 가입 시 DB 트리거(`handle_new_betong_customer`)가 자동으로 채워 넣습니다 — `nickname`은 회원가입 폼(`AuthPage.jsx`가 `supabase.auth.signUp({ options: { data: { nickname } } })`로 전달)에서 받아오며, 없으면 이메일 앞부분으로 대체됩니다. 로그인 후 화면(`Header.jsx`)과 관리자 주문 목록(`AdminPage.jsx`)에는 이메일이 아니라 항상 닉네임이 표시됩니다.
 
 **강제 경계는 항상 RLS이고, 애플리케이션 코드가 아닙니다.** PRD에서 가장 자주 틀리기 쉬운 지점으로 명시적으로 짚은 부분입니다:
 - RLS 정책은 반드시 `profiles.role`을 확인해야 하며, 하드코딩된 이메일이나 `AdminPage.jsx`의 프론트엔드 `if` 체크로 대체하면 안 됩니다. 프론트엔드만의 가드는 UX일 뿐 보안이 아니며, 누구나 Supabase API를 직접 호출해 우회할 수 있습니다.
 - `orders` SELECT: 손님은 `user_id = auth.uid()`인 행만, 사장은 전체를 봅니다.
 - `orders` INSERT: `WITH CHECK (user_id = auth.uid())`가 반드시 있어야 합니다 — 손님이 다른 사람의 `user_id`로 주문을 만들 수 없어야 합니다.
 - `orders` UPDATE(상태 변경) / DELETE: 사장만 가능합니다. 손님은 자기 주문도 수정·취소할 수 없습니다 (취소는 기능이 아니라 사장에게 하는 요청입니다).
+- `menu` SELECT: 공개 — 익명 방문자를 포함해 누구나 조회 가능합니다.
+- `menu` INSERT / UPDATE / DELETE: 사장만 가능하며, `profiles.role = "owner"`로 체크합니다 — `orders`와 동일하게, 사장 이메일 하드코딩으로 체크하지 않습니다.
+- `profiles` SELECT: 기본은 본인 행만, **단 사장은 예외적으로 전체 행을 조회**할 수 있습니다 (`AdminPage.jsx`에서 손님 이메일을 보여주기 위함). 이 사장 전체 조회 정책은 `profiles` 테이블 자기 참조로 인한 RLS 재귀를 피하기 위해 `SECURITY DEFINER` 헬퍼 함수(`is_betong_owner()`)를 통해 구현했습니다.
 
-인증, `orders` 테이블, `AdminPage.jsx`를 다룰 때는 화면 단의 체크만 믿지 말고 실제 RLS 정책이 위 내용을 강제하는지 반드시 확인하세요.
+인증, `orders` 테이블, `menu` 테이블, `profiles` 테이블, `AdminPage.jsx`를 다룰 때는 화면 단의 체크만 믿지 말고 실제 RLS 정책이 위 내용을 강제하는지 반드시 확인하세요.

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Header from "@/components/Header.jsx";
-import menu from "@/data/menu.js";
 
 const STATUS_BADGE_CLASS = {
   접수: "bg-[#458fff]/10 text-[#254fad] dark:bg-[#458fff]/20 dark:text-[#8fb8ff]",
@@ -29,12 +28,24 @@ function MyOrdersPage() {
   const [editPickupTime, setEditPickupTime] = useState("");
   const [editError, setEditError] = useState("");
   const [editSaving, setEditSaving] = useState(false);
+  const [menu, setMenu] = useState([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
     }
   }, [authLoading, user, navigate]);
+
+  useEffect(() => {
+    async function fetchMenu() {
+      const { data, error } = await supabase.from("menu").select("name, price");
+      if (!error) {
+        setMenu(data);
+      }
+    }
+
+    fetchMenu();
+  }, []);
 
   useEffect(() => {
     if (!user) return;

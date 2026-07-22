@@ -9,23 +9,26 @@ import betongLogo from "@/assets/betong-logo.png";
 function Header({ totalCount }) {
   const { user } = useAuth();
   const [role, setRole] = useState(null);
+  const [nickname, setNickname] = useState(null);
 
   useEffect(() => {
     if (!user) {
       setRole(null);
+      setNickname(null);
       return;
     }
 
     let cancelled = false;
 
-    async function fetchRole() {
-      const { data } = await supabase.from("profiles").select("role");
+    async function fetchProfile() {
+      const { data } = await supabase.from("profiles").select("role, nickname");
       if (!cancelled) {
         setRole(data?.[0]?.role ?? "customer");
+        setNickname(data?.[0]?.nickname ?? null);
       }
     }
 
-    fetchRole();
+    fetchProfile();
     return () => {
       cancelled = true;
     };
@@ -46,13 +49,13 @@ function Header({ totalCount }) {
 
       {user ? (
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <span className="hidden text-sm text-muted-foreground sm:inline">{user.email}</span>
+          <span className="hidden text-sm text-muted-foreground sm:inline">{nickname ?? user.email}</span>
           {role === "owner" && (
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" className="rounded-[4px]" asChild>
               <Link to="/admin">회원 주문 관리</Link>
             </Button>
           )}
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" className="rounded-[4px]" asChild>
             <Link to="/my">내 주문</Link>
           </Button>
           <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -60,7 +63,7 @@ function Header({ totalCount }) {
           </Button>
         </div>
       ) : (
-        <Button size="sm" className="bg-[#969696] hover:bg-primary" asChild>
+        <Button variant="ghost" size="sm" asChild>
           <Link to="/auth">로그인</Link>
         </Button>
       )}
