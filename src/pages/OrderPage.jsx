@@ -166,7 +166,7 @@ function OrderPage() {
       </div>
 
       <div className="pb-32 md:flex md:items-start md:gap-4 md:px-6 md:pb-6">
-        <section className="px-6 pt-6 md:flex-1 md:p-0 md:py-6">
+        <section className="px-4 pt-4 md:flex-1 md:p-0 md:py-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-6 md:grid-cols-3 md:gap-6">
             {menu.map((item) => (
               <MenuCard key={item.id} item={item} onAdd={() => handleAdd(item.id)} />
