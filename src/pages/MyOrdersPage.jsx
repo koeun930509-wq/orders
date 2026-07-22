@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Header from "@/components/Header.jsx";
 import menu from "@/data/menu.js";
 
@@ -102,36 +103,28 @@ function MyOrdersPage() {
     return null;
   }
 
-  return (
-    <div>
-      <Header />
+  const receivedOrders = orders.filter((order) => order.status === "접수");
+  const completedOrders = orders.filter((order) => order.status === "완료");
 
-      <div className="mx-auto max-w-2xl p-4 pt-20">
-        {loading && <p className="text-sm text-muted-foreground">불러오는 중...</p>}
-        {error && <p className="text-sm text-destructive">{error}</p>}
+  function renderOrderList(list) {
+    if (!loading && !error && list.length === 0) {
+      return (
+        <div className="flex min-h-[calc(100vh-16rem)] flex-col items-center justify-center gap-4 text-center">
+          <p className="text-sm text-muted-foreground">주문이 없어요</p>
+        </div>
+      );
+    }
 
-        {!loading && !error && orders.length === 0 && (
-          <>
-            <div className="flex min-h-[calc(100vh-11rem)] flex-col items-center justify-center gap-4 text-center">
-              <p className="text-sm text-muted-foreground">아직 주문이 없어요</p>
-            </div>
-            <div className="fixed inset-x-0 bottom-0 z-40 bg-card">
-              <Button asChild className="h-auto w-full rounded-none py-3 text-[1.5rem] font-medium">
-                <Link to="/">주문하러 가기</Link>
-              </Button>
-            </div>
-          </>
-        )}
-
-        <ul className="flex flex-col gap-4">
-          {orders.map((order, index) => (
+    return (
+      <ul className="flex flex-col gap-4">
+        {list.map((order, index) => (
             <li
               key={order.id}
               className="rounded-md bg-card p-6 font-mono"
             >
               <div className="mb-4 flex flex-col items-center gap-4">
                 <span className="text-lg font-bold tracking-wide">
-                  ORDER LIST {orders.length - index}
+                  ORDER LIST {list.length - index}
                 </span>
                 <Badge className={STATUS_BADGE_CLASS[order.status]}>{order.status}</Badge>
               </div>
@@ -217,8 +210,41 @@ function MyOrdersPage() {
                 </div>
               )}
             </li>
-          ))}
-        </ul>
+        ))}
+      </ul>
+    );
+  }
+
+  return (
+    <div>
+      <Header />
+
+      <div className="mx-auto max-w-2xl p-4 pt-20">
+        {loading && <p className="text-sm text-muted-foreground">불러오는 중...</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
+
+        {!loading && !error && (
+          <Tabs defaultValue="접수">
+            <TabsList className="grid w-full grid-cols-2 group-data-horizontal/tabs:h-auto">
+              <TabsTrigger value="접수" className="h-auto py-3">접수 ({receivedOrders.length})</TabsTrigger>
+              <TabsTrigger value="완료" className="h-auto py-3">완료 ({completedOrders.length})</TabsTrigger>
+            </TabsList>
+            <TabsContent value="접수" className="mt-4">
+              {renderOrderList(receivedOrders)}
+            </TabsContent>
+            <TabsContent value="완료" className="mt-4">
+              {renderOrderList(completedOrders)}
+            </TabsContent>
+          </Tabs>
+        )}
+
+        {orders.length === 0 && !loading && !error && (
+          <div className="fixed inset-x-0 bottom-0 z-40 bg-card">
+            <Button asChild className="h-auto w-full rounded-none py-3 text-[1.5rem] font-medium">
+              <Link to="/">주문하러 가기</Link>
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
