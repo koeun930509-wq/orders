@@ -52,7 +52,7 @@ function Header({ totalCount }) {
           <span className="hidden text-sm text-muted-foreground sm:inline">{nickname ?? user.email}</span>
           {role === "owner" && (
             <Button variant="outline" size="sm" className="rounded-[4px]" asChild>
-              <Link to="/admin">회원 주문 관리</Link>
+              <Link to="/admin">회원주문관리</Link>
             </Button>
           )}
           <Button variant="outline" size="sm" className="rounded-[4px]" asChild>

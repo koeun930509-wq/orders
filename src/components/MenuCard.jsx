@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 function MenuCard({ item, onAdd }) {
   return (
-    <Card className="rounded-none border-b border-border p-0 py-5 ring-0 first:pt-0 xl:rounded-md xl:p-0 xl:ring-1 xl:ring-foreground/10 xl:first:pt-0">
+    <Card className="rounded-none border-b border-border p-0 py-5 ring-0 max-sm:first:pt-0 xl:rounded-md xl:p-0 xl:ring-1 xl:ring-foreground/10">
       <CardContent className="flex items-stretch gap-3 p-0 xl:gap-5">
         {item.image && (
           <div className="relative h-24 w-24 shrink-0 xl:h-auto xl:w-36">
