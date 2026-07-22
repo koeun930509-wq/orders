@@ -24,6 +24,7 @@ function OrderPage() {
   const [pickupTime, setPickupTime] = useState("");
   const [orderError, setOrderError] = useState("");
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [mobileCartExpanded, setMobileCartExpanded] = useState(false);
 
   function handleAdd(id) {
     setCart((prev) => {
@@ -76,6 +77,7 @@ function OrderPage() {
     setOrderSuccess(true);
     setCart([]);
     setPickupTime("");
+    setMobileCartExpanded(false);
   }
 
   function renderOrderButton() {
@@ -90,10 +92,10 @@ function OrderPage() {
     );
   }
 
-  function renderCartBody(idSuffix) {
+  function renderCartBody(idSuffix, { showHeading = true } = {}) {
     return (
       <>
-        <h2 className="text-base font-medium">주문서</h2>
+        {showHeading && <h2 className="text-base font-medium">주문서</h2>}
 
         {cart.length === 0 ? (
           <p className="text-sm text-muted-foreground">담은 품목이 없어요</p>
@@ -177,8 +179,31 @@ function OrderPage() {
         </aside>
       </div>
 
-      <section className="fixed inset-x-0 bottom-0 z-40 flex w-full max-h-[70vh] flex-col gap-4 overflow-y-auto rounded-t-lg border-t border-border bg-card p-5 md:hidden">
-        {cart.length === 0 ? renderOrderButton() : renderCartBody("mobile")}
+      <section className="fixed inset-x-0 bottom-0 z-40 w-full rounded-t-lg border-t border-border bg-card md:hidden">
+        {cart.length === 0 ? (
+          <div className="p-5">{renderOrderButton()}</div>
+        ) : mobileCartExpanded ? (
+          <div className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto p-5">
+            <button
+              type="button"
+              className="flex items-center justify-between text-left"
+              onClick={() => setMobileCartExpanded(false)}
+            >
+              <h2 className="text-base font-medium">주문서</h2>
+              <span className="text-sm text-muted-foreground">접기 ▾</span>
+            </button>
+            {renderCartBody("mobile", { showHeading: false })}
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="flex w-full items-center justify-between p-5"
+            onClick={() => setMobileCartExpanded(true)}
+          >
+            <span className="text-sm text-muted-foreground">담은 품목 {totalCount}개 ▴</span>
+            <span className="text-[1.2rem] font-medium text-primary">{totalPrice.toLocaleString()}원</span>
+          </button>
+        )}
       </section>
 
       <Dialog open={orderSuccess} onOpenChange={setOrderSuccess}>
