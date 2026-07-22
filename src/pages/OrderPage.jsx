@@ -82,11 +82,11 @@ function OrderPage() {
 
   function renderOrderButton() {
     return user ? (
-      <Button className="h-auto w-full py-4 text-base font-medium" disabled={cart.length === 0} onClick={handleOrder}>
+      <Button className="h-auto w-full rounded-none py-4 text-base font-medium md:rounded-lg" disabled={cart.length === 0} onClick={handleOrder}>
         주문하기
       </Button>
     ) : (
-      <Button className="h-auto w-full py-4 text-base font-medium" onClick={() => navigate("/auth")}>
+      <Button className="h-auto w-full rounded-none py-4 text-base font-medium md:rounded-lg" onClick={() => navigate("/auth")}>
         로그인하고 주문하기
       </Button>
     );
@@ -181,7 +181,7 @@ function OrderPage() {
 
       <section className="fixed inset-x-0 bottom-0 z-40 w-full rounded-t-lg border-t border-border bg-card md:hidden">
         {cart.length === 0 ? (
-          <div className="p-5">{renderOrderButton()}</div>
+          renderOrderButton()
         ) : mobileCartExpanded ? (
           <div className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto p-5">
             <button

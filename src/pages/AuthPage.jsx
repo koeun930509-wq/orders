@@ -67,7 +67,7 @@ function AuthPage() {
             alt="BETONG"
             className="mx-auto mb-3 h-10 w-auto brightness-0 invert"
           />
-          <CardTitle className="text-center text-2xl font-light text-white">오늘의 주문</CardTitle>
+          <CardTitle className="text-center text-base font-light text-white">오늘의 주문</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login">
