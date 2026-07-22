@@ -65,7 +65,7 @@ function AuthPage() {
           <img
             src={betongLogo}
             alt="BETONG"
-            className="mx-auto mb-3 h-8 w-auto brightness-0 invert"
+            className="mx-auto mb-3 h-10 w-auto brightness-0 invert"
           />
           <CardTitle className="text-center text-2xl font-light text-white">오늘의 주문</CardTitle>
         </CardHeader>
