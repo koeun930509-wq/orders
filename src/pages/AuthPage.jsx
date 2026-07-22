@@ -113,7 +113,7 @@ function AuthPage() {
                 {loginError && <p className="text-sm text-destructive">{loginError}</p>}
                 <Button
                   type="submit"
-                  className="h-auto w-full py-4 text-base font-medium"
+                  className="h-12 w-full text-base font-medium"
                   disabled={loginLoading}
                 >
                   {loginLoading ? "로그인 중..." : "로그인"}
@@ -148,7 +148,7 @@ function AuthPage() {
                 {signupError && <p className="text-sm text-destructive">{signupError}</p>}
                 <Button
                   type="submit"
-                  className="h-auto w-full py-4 text-base font-medium"
+                  className="h-12 w-full text-base font-medium"
                   disabled={signupLoading}
                 >
                   {signupLoading ? "가입 중..." : "회원가입"}
