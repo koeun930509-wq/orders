@@ -100,11 +100,11 @@ function OrderPage() {
 
   function renderOrderButton() {
     return user ? (
-      <Button className="h-auto w-full rounded-none py-4 text-base font-medium md:rounded-lg" disabled={cart.length === 0} onClick={handleOrder}>
+      <Button className="h-auto w-full rounded-none py-4 text-base font-medium xl:rounded-lg" disabled={cart.length === 0} onClick={handleOrder}>
         주문하기
       </Button>
     ) : (
-      <Button className="h-auto w-full rounded-none py-4 text-base font-medium md:rounded-lg" onClick={() => navigate("/auth")}>
+      <Button className="h-auto w-full rounded-none py-4 text-base font-medium xl:rounded-lg" onClick={() => navigate("/auth")}>
         로그인하고 주문하기
       </Button>
     );
@@ -118,7 +118,7 @@ function OrderPage() {
         {cart.length === 0 ? (
           <p className="text-sm text-muted-foreground">담은 품목이 없어요</p>
         ) : (
-          <ul className="flex max-h-40 min-h-0 shrink-0 flex-col gap-3 overflow-y-auto pr-1 md:max-h-none md:overflow-visible">
+          <ul className="flex max-h-40 min-h-0 shrink-0 flex-col gap-3 overflow-y-auto pr-1 xl:max-h-none xl:overflow-visible">
             {cart.map((line) => {
               const item = menu.find((m) => m.id === line.id);
               return (
@@ -167,7 +167,7 @@ function OrderPage() {
       <Header totalCount={totalCount} />
 
       <div className="pt-16">
-        <div className="relative h-40 w-full overflow-hidden sm:h-52 md:h-64">
+        <div className="relative h-40 w-full overflow-hidden sm:h-52 xl:h-64">
           <img src={heroImage} alt="소금빵 카페 베통 매장 진열대" className="h-full w-full object-cover object-[center_20%]" />
           <div className="absolute inset-0 bg-black/30" />
           <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-white">
@@ -183,12 +183,12 @@ function OrderPage() {
         </div>
       </div>
 
-      <div className="pb-32 md:flex md:items-start md:gap-4 md:px-6 md:pb-6">
-        <section className="px-4 pt-4 md:flex-1 md:p-0 md:py-6">
+      <div className="pb-32 xl:flex xl:items-start xl:gap-4 xl:px-6 xl:pb-6">
+        <section className="px-4 pt-4 xl:flex-1 xl:p-0 xl:py-6">
           {menuLoading ? (
             <p className="text-sm text-muted-foreground">메뉴를 불러오는 중...</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-6 md:grid-cols-3 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-6 xl:grid-cols-3 xl:gap-6">
               {menu.map((item) => (
                 <MenuCard key={item.id} item={item} onAdd={() => handleAdd(item.id)} />
               ))}
@@ -196,12 +196,12 @@ function OrderPage() {
           )}
         </section>
 
-        <aside className="hidden md:sticky md:top-20 md:mt-6 md:flex md:w-80 md:shrink-0 md:max-h-[calc(100vh-6rem)] md:flex-col md:gap-4 md:overflow-y-auto md:rounded-lg md:border md:border-border md:bg-card md:p-5">
+        <aside className="hidden xl:sticky xl:top-20 xl:mt-6 xl:flex xl:w-80 xl:shrink-0 xl:max-h-[calc(100vh-6rem)] xl:flex-col xl:gap-4 xl:overflow-y-auto xl:rounded-lg xl:border xl:border-border xl:bg-card xl:p-5">
           {renderCartBody("desktop")}
         </aside>
       </div>
 
-      <section className="fixed inset-x-0 bottom-0 z-40 w-full rounded-t-lg border-t border-border bg-card md:hidden">
+      <section className="fixed inset-x-0 bottom-0 z-40 w-full rounded-t-lg border-t border-border bg-card xl:hidden">
         {cart.length === 0 ? (
           renderOrderButton()
         ) : mobileCartExpanded ? (

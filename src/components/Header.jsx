@@ -39,7 +39,7 @@ function Header({ totalCount }) {
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between gap-2 border-b border-border bg-background px-4 sm:gap-4 md:px-6">
+    <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between gap-2 border-b border-border bg-background px-4 sm:gap-4 xl:px-6">
       <div className="flex shrink-0 items-center gap-2">
         <Link to="/">
           <img src={betongLogo} alt="BETONG" className="h-6 w-auto" />
