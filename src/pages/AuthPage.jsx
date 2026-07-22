@@ -56,7 +56,7 @@ function AuthPage() {
 
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center bg-cover bg-center px-4 py-12"
+      className="relative flex min-h-dvh items-center justify-center bg-cover bg-center px-4 py-12"
       style={{ backgroundImage: `url(${loginBgImage})` }}
     >
       <div className="absolute inset-0 bg-black/70" />
