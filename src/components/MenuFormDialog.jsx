@@ -27,7 +27,7 @@ function MenuFormDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto p-0">
+      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto p-0">
         <div className="p-6 sm:p-8">
           <DialogTitle asChild>
             <div className="mb-6 flex items-center gap-3">
@@ -146,10 +146,25 @@ function MenuFormDialog({
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <Button type="submit" className="w-fit gap-1.5" disabled={saving}>
-              <Plus className="size-4" />
-              {saving ? "저장 중..." : submitLabel}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="submit"
+                className="h-auto w-fit gap-1.5 rounded-[4px] px-3.75 py-1.5"
+                disabled={saving}
+              >
+                <Plus className="size-4" />
+                {saving ? "저장 중..." : submitLabel}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-auto w-fit gap-1.5 rounded-[4px] px-3.75 py-1.5"
+                onClick={() => onOpenChange(false)}
+                disabled={saving}
+              >
+                취소
+              </Button>
+            </div>
           </form>
         </div>
       </DialogContent>

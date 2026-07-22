@@ -34,6 +34,15 @@ function AdminPage() {
   const [role, setRole] = useState(null);
   const [roleLoading, setRoleLoading] = useState(true);
 
+  const [activeTab, setActiveTab] = useState(
+    () => sessionStorage.getItem("adminActiveTab") || "orders",
+  );
+
+  function handleTabChange(value) {
+    setActiveTab(value);
+    sessionStorage.setItem("adminActiveTab", value);
+  }
+
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [error, setError] = useState("");
@@ -383,8 +392,8 @@ function AdminPage() {
   return (
     <div>
       <Header />
-      <div className="mx-auto max-w-4xl p-4 pt-20">
-        <Tabs defaultValue="orders">
+      <div className="mx-auto max-w-4xl p-4 pt-25">
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="grid w-full grid-cols-2 group-data-horizontal/tabs:h-auto">
             <TabsTrigger value="orders" className="h-auto py-2.5 sm:py-3">주문 관리</TabsTrigger>
             <TabsTrigger value="menu" className="h-auto py-2.5 sm:py-3">메뉴 관리</TabsTrigger>
@@ -483,7 +492,7 @@ function AdminPage() {
           <TabsContent value="menu" className="mt-4 flex flex-col gap-6">
             <div className="flex justify-end">
               <Button
-                className="gap-1.5"
+                className="h-auto gap-1.5 rounded-[4px] px-3.75 py-1.5"
                 onClick={() => {
                   setMenuError("");
                   setAddDialogOpen(true);
