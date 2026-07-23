@@ -23,7 +23,7 @@ function MenuCard({ item, onAdd }) {
           <h3 className="text-base font-bold leading-tight xl:text-[1.2rem] xl:font-medium">{item.name}</h3>
           <p className="text-sm leading-snug text-muted-foreground">{item.description}</p>
           <div className="mt-auto flex items-end justify-between pt-1">
-            <span className="text-[1.2rem] font-bold leading-none xl:font-medium">{item.price.toLocaleString()}원</span>
+            <span className="relative -top-1.5 text-[1rem] font-bold leading-none xl:top-0 xl:text-[1.2rem] xl:font-medium">{item.price.toLocaleString()}원</span>
             <Button
               className="rounded-[8px] bg-[#ccc] hover:bg-[#ccc]"
               onClick={onAdd}
